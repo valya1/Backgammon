@@ -23,10 +23,10 @@ void init()
 
 void show_field()
 {
-	int pos = 11; // генерация с 11 ячейки
+	int pos = 11; // ГЈГҐГ­ГҐГ°Г Г¶ГЁГї Г± 11 ГїГ·ГҐГ©ГЄГЁ
 	cout << "    11   10   9    8    7    6     5    4    3    2    1    0" << endl;
 	cout << "---------------------------------------------------------------" << endl;
-	for (int i = 0; i < 15; i++) // первые 15 строк
+	for (int i = 0; i < 15; i++) // ГЇГҐГ°ГўГ»ГҐ 15 Г±ГІГ°Г®ГЄ
 	{
 		pos = 11;
 		cout << "| ";
@@ -43,7 +43,7 @@ void show_field()
 		}
 		cout << "|" << endl;
 	}
-	for (int i = 15; i > 0; i--) // последние 15 строк
+	for (int i = 15; i > 0; i--) // ГЇГ®Г±Г«ГҐГ¤Г­ГЁГҐ 15 Г±ГІГ°Г®ГЄ
 	{
 		pos = 12;
 		cout << "| ";
@@ -61,7 +61,6 @@ void show_field()
 		cout << "|" << endl;
 	}
 
-
 	cout << "---------------------------------------------------------------" << endl;
 	cout << "    12   13   14   15   16   17    18   19   20   21   22   23" << endl;
 	for (int i = 0; i < 3; i++)
@@ -73,39 +72,39 @@ void throw_dice()
 	srand(time(0));
 	dice1 = rand() % 6 + 1;
 	dice2 = rand() % 6 + 1;
-	cout << "           На первом кубике выпало:      " << dice1 << endl;
-	cout << "           На втором кубике выпало:      " << dice2 << endl;
+	cout << "           ГЌГ  ГЇГҐГ°ГўГ®Г¬ ГЄГіГЎГЁГЄГҐ ГўГ»ГЇГ Г«Г®:      " << dice1 << endl;
+	cout << "           ГЌГ  ГўГІГ®Г°Г®Г¬ ГЄГіГЎГЁГЄГҐ ГўГ»ГЇГ Г«Г®:      " << dice2 << endl;
 }
 
 void turn(int player)
 {
 	vecint dices;
 	int pos, points;
-	bool flag = 0; // признак того, что ход верен
+	bool flag = 0; // ГЇГ°ГЁГ§Г­Г ГЄ ГІГ®ГЈГ®, Г·ГІГ® ГµГ®Г¤ ГўГҐГ°ГҐГ­
 	throw_dice();
 	dices.push_back(dice1);
 	dices.push_back(dice2);
-	if (dice1 == dice2) // дубль
+	if (dice1 == dice2) // Г¤ГіГЎГ«Гј
 	{
-		cout << "Вам выпал дубль!!!" << endl << endl;;
+		cout << "Г‚Г Г¬ ГўГ»ГЇГ Г« Г¤ГіГЎГ«Гј!!!" << endl << endl;;
 		dices.push_back(dice1);
 		dices.push_back(dice2);
 	}
 	while (!dices.empty())
 	{
-		cout << "Введите номер ячейки, откуда переставлять:     ";
+		cout << "Г‚ГўГҐГ¤ГЁГІГҐ Г­Г®Г¬ГҐГ° ГїГ·ГҐГ©ГЄГЁ, Г®ГІГЄГіГ¤Г  ГЇГҐГ°ГҐГ±ГІГ ГўГ«ГїГІГј:     ";
 		cin >> pos;
 		while (chip[pos] != p[player - 1])
 		{
-			cout << "Хватит ходить чужими фишками!" << endl;
+			cout << "Г•ГўГ ГІГЁГІ ГµГ®Г¤ГЁГІГј Г·ГіГ¦ГЁГ¬ГЁ ГґГЁГёГЄГ Г¬ГЁ!" << endl;
 			cin >> pos;
 		}
-		cout << "Количество очков:    ";
+		cout << "ГЉГ®Г«ГЁГ·ГҐГ±ГІГўГ® Г®Г·ГЄГ®Гў:    ";
 		cin >> points;
 		for (int i = 0; i < dices.size(); i++)
 			if (points == dices[i])
 			{
-				dices.erase(dices.begin() + i); // удаляем кубик из массива кубиков
+				dices.erase(dices.begin() + i); // ГіГ¤Г Г«ГїГҐГ¬ ГЄГіГЎГЁГЄ ГЁГ§ Г¬Г Г±Г±ГЁГўГ  ГЄГіГЎГЁГЄГ®Гў
 				flag = true;
 				break;
 			}
@@ -119,7 +118,7 @@ void turn(int player)
 			show_field();
 
 			if (!dices.empty())
-				cout << "У вас остались следующие ходы:   " << endl;
+				cout << "Г“ ГўГ Г± Г®Г±ГІГ Г«ГЁГ±Гј Г±Г«ГҐГ¤ГіГѕГ№ГЁГҐ ГµГ®Г¤Г»:   " << endl;
 			for (int i = 0; i < dices.size(); i++)
 				cout << dices[i] << " ";
 			cout << endl;
