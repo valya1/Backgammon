@@ -1,24 +1,31 @@
 ﻿#include "stdafx.h"
 #include <iostream>
 #include<ctime>
+#include<windows.h>
 #include<string>
 #include<vector>
 #define vecint vector<int>
 #define vecstr vector<string>
 
 using namespace std;
+struct value 
+{
+	string chip;
+	int amount;
+};
+vector<value> val(25);
 
-vecstr chip(25);
+vecstr chip(25); // массив фишек
 vecint amount(25);
-int player = 1, dice1, dice2;
-string p[2] = { "#", "*" };
+int player=1, dice1, dice2;
+string p[2] = { "#", "*" }; //фишки
 
 void init()
 {
-	amount[12] = 15;
-	chip[12] = "*";
-	amount[0] = 15;
-	chip[0] = "#";
+	val[12].amount = 15;
+	val[12].chip = "*";
+	val[0].amount = 15;
+	val[0].chip = "#";
 }
 
 void show_field()
@@ -32,9 +39,9 @@ void show_field()
 		cout << "| ";
 		for (int j = 0; j < 12; j++)
 		{
-			if (amount[pos] - i > 0)
+			if (val[pos].amount - i > 0)
 			{
-				cout << "  " + chip[pos] + "  ";
+				cout << "  " + val[pos].chip + "  ";
 			}
 			else cout << "     ";
 			if (j == 5)
@@ -49,9 +56,9 @@ void show_field()
 		cout << "| ";
 		for (int j = 0; j < 12; j++)
 		{
-			if (amount[pos] - i >= 0)
+			if (val[pos].amount - i >= 0)
 			{
-				cout << "  " + chip[pos] + "  ";
+				cout << "  " + val[pos].chip + "  ";
 			}
 			else cout << "     ";
 			if (j == 5)
@@ -77,65 +84,108 @@ void throw_dice()
 	cout << "           На втором кубике выпало:      " << dice2 << endl;
 }
 
-void turn(int player)
+bool turn_is_possible(vecint dices, bool head_chip)
+{
+	int count = 0; // считаем, что оба хода возможны
+	for (int i = 0; i < 2; i++) // проверяем возможность хода с очками на обоих кубиках
+	{
+		int ok_positions = 24; // позиция "плохая", если на ней нет фишек или с неё нельзя сходить, изначально считаем, что все "хорошие"
+		for (int j = 0; j < 24 - dices[i]; j++)
+			if ( (val[i].chip == p[player - 1] && val[i + dices[i]].chip == p[(player % 2)])  ||  val[i].chip.empty()  ||  (j==0 && head_chip))
+				ok_positions--; /* если на текущей позиции - ваша фишка, а на итоговой - фишка соперника, или текущая позиция пустая,
+								 или если это голова и с нее уже сняли фишку, то метим позицию как плохую*/
+								// (player-1) - текущий игрок, ( (player %2)+1 ) - противник!
+		if (ok_positions == 0) 
+			count++; // ход с этими очками невозможен
+	}
+	if (count==2)
+		return false;
+	return true;		
+}
+
+void turn()
 {
 	vecint dices;
 	int pos, points;
-	bool flag = 0; // признак того, что ход верен
+	bool flag = false;// признак того, что ход верен
+	bool head_chip = false;
 	throw_dice();
 	dices.push_back(dice1);
 	dices.push_back(dice2);
-	if (dice1 == dice2) // дубль
+	cout << "Ходит игрок " << player << endl;
+	if (turn_is_possible(dices, head_chip))
 	{
-		cout << "Вам выпал дубль!!!" << endl << endl;;
-		dices.push_back(dice1);
-		dices.push_back(dice2);
-	}
-	while (!dices.empty())
-	{
-		cout << "Введите номер ячейки, откуда переставлять:     ";
-		cin >> pos;
-		while (chip[pos] != p[player - 1])
+		if (dice1 == dice2) // дубль
 		{
-			cout << "Хватит ходить чужими фишками!" << endl;
-			cin >> pos;
+			cout << "Вам выпал дубль!!!" << endl << endl;
+			dices.push_back(dice1);
+			dices.push_back(dice2);
 		}
-		cout << "Количество очков:    ";
-		cin >> points;
-		for (int i = 0; i < dices.size(); i++)
-			if (points == dices[i])
+		while (!dices.empty())
+		{
+			cout << "Введите номер ячейки, откуда переставлять:     ";
+			cin >> pos;
+			while ((val[pos].chip != p[player - 1]) || (head_chip && pos==12 && player==2) || (head_chip && pos == 0 && player == 1))
+				// если ход чужой фишкой или попытка снять еще одну с головы
 			{
-				dices.erase(dices.begin() + i); // удаляем кубик из массива кубиков
-				flag = true;
-				break;
+				if ((pos == 0 && player==1) || (pos == 12 && player ==2))
+					cout << "С головы фишку снимать больше нельзя. Введите другую позицию" << endl;
+				else
+					cout << "Здесь чужая фишка или пустая ячейка. Введите позицию заново." << endl;
+				cin >> pos;
 			}
-		if (flag)
-		{ 
-			chip[pos + points] = chip[pos];
-			amount[pos]--;
-			amount[pos + points]++;
-
-			system("cls");
-			show_field();
-
-			if (!dices.empty())
-				cout << "У вас остались следующие ходы:   " << endl;
+			if ((pos == 0 && player==1) || (pos==12 && player==2)) // сняли фишку с головы, больше снимать нельзя
+				head_chip = true;
+			cout << "Количество очков:    ";
+			cin >> points;
+			while (val[(pos + points)%24].chip == p[player % 2])
+			{
+				cout << "Ход невозможен, здесь чужая фишка. Введите количество очков заново или любую другую цифру, чтобы изменить ход." << endl;
+				cin >> points;
+			}
 			for (int i = 0; i < dices.size(); i++)
-				cout << dices[i] << " ";
-			cout << endl;
-			flag = false;
+				if (points == dices[i])
+				{
+					dices.erase(dices.begin() + i); // удаляем кубик из массива кубиков
+					flag = true;
+					break;
+				}
+
+			if (flag) // flag - признак верности хода, меняем расположение фишки
+			{
+				val[(pos + points) % 24].chip = val[pos].chip;
+				val[pos].amount--;
+				if (val[pos].amount == 0)
+					val[pos].chip.erase(); // удаляем фишку, если ячейка стала пустой
+				val[(pos + points) % 24].amount++;
+
+				system("cls");
+				show_field();
+
+				if (!dices.empty())
+					cout << "У вас остались следующие ходы:   " << endl;
+				for (int i = 0; i < dices.size(); i++)
+					cout << dices[i] << " ";
+				cout << endl;
+				flag = false;
+			}
 		}
 	}
-	player = (player % 2) + 1;
+	else
+	{
+		cout << "Вы не можете ходить, ход переходит сопернику";
+		Sleep(1000);
+	}
+	player = (player % 2) + 1; //переход хода другому игроку
 }
-
 
 int main()
 {
 	setlocale(LC_ALL, "Rus");
 	init();
 	show_field();
-	turn(player);
+	while (true)
+		turn();
 	system("pause");
 	return 0;
 }
