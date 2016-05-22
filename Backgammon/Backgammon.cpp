@@ -91,11 +91,11 @@ bool turn_is_possible(vecint dices, bool head_chip)
 	{
 		int ok_positions = 24; // позиция "плохая", если на ней нет фишек или с неё нельзя сходить, изначально считаем, что все "хорошие"
 		for (int j = 0; j < 24 - dices[i]; j++)
-			if ( (val[j].chip == p[player - 1] && val[j + dices[i]].chip == p[(player % 2)])  ||  val[j].chip.empty()  ||  (j==0 && head_chip && player==1)
+			if ( (val[j].chip == p[player - 1] && val[ (j + dices[i])%24 ].chip == p[((player+1) % 2)])  ||  val[j].chip.empty()  ||  (j==0 && head_chip && player==1)
 				|| (j==12 && head_chip && player==2) || val[j].chip!=p[player-1])
 				ok_positions--; /* если на текущей позиции - ваша фишка, а на итоговой - фишка соперника, или текущая позиция пустая,
 								 или если это голова и с нее уже сняли фишку, или же на этой позиции чужая фишка, то метим позицию как плохую)))))*/
-								// (player-1) - текущий игрок, ( (player %2)+1 ) - противник!
+								// (player-1) - текущий игрок, ( (player+1) %2 ) - противник!
 		if (ok_positions == 0) 
 			count++; // ход с этими очками невозможен
 	}
@@ -139,7 +139,7 @@ void turn()
 					head_chip = true;
 				cout << "Количество очков:    ";
 				cin >> points;
-				while (val[(pos + points) % 24].chip == p[player % 2])
+				while (val[(pos + points) % 24].chip == p[(player+1) % 2])
 				{
 					cout << "Ход невозможен, здесь чужая фишка. Введите количество очков заново или любую другую цифру, чтобы изменить ход." << endl;
 					cin >> points;
@@ -154,7 +154,7 @@ void turn()
 
 				if (flag) // flag - признак верности хода, меняем расположение фишки
 				{
-					if ((player == 1 && (pos + points) <= 23) || (player == 2 && (pos + points) >= 6)) //условие того, что фишка не выйдет из дома
+					if ((player == 1 && ((pos + points)%24) <= 23) || (player == 2 && ((pos + points)%24) <= 11)) //условие того, что фишка не вы из дома
 					{
 						val[(pos + points) % 24].chip = val[pos].chip;
 						val[pos].amount--;
