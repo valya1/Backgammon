@@ -17,7 +17,7 @@ vector<value> val(25);
 
 vecstr chip(25); // массив фишек
 vecint amount(25);
-int player=1, dice1, dice2;
+int player=0, dice1, dice2;
 string p[2] = { "#", "*" }; //фишки
 
 void init()
@@ -78,8 +78,8 @@ void show_field()
 void throw_dice()
 {
 	srand(time(0));
-	dice1 = rand() % 6 + 1;
-	dice2 = rand() % 6 + 1;
+	dice1 = 6;//rand() % 6 + 1;
+	dice2 = 6;//rand() % 6 + 1;
 	cout << "           На первом кубике выпало:      " << dice1 << endl;
 	cout << "           На втором кубике выпало:      " << dice2 << endl;
 }
@@ -90,9 +90,9 @@ bool turn_is_possible(vecint dices, bool head_chip)
 	for (int i = 0; i < dices.size(); i++) // проверяем возможность хода с очками на кубиках
 	{
 		int ok_positions = 24; // позиция "плохая", если на ней нет фишек или с неё нельзя сходить, изначально считаем, что все "хорошие"
-		for (int j = 0; j < 24 - dices[i]; j++)
-			if ( (val[j].chip == p[player - 1] && val[ (j + dices[i])%24 ].chip == p[((player+1) % 2)])  ||  val[j].chip.empty()  ||  (j==0 && head_chip && player==1)
-				|| (j==12 && head_chip && player==2) || val[j].chip!=p[player-1])
+		for (int j = 0; j < 24; j++)
+			if ( (val[j].chip == p[player] && val[ (j + dices[i])%24 ].chip == p[((player+1) % 2)])  ||(j==0 && head_chip && player==0)
+				|| (j==12 && head_chip && player==1) || val[j].chip!=p[player])
 				ok_positions--; /* если на текущей позиции - ваша фишка, а на итоговой - фишка соперника, или текущая позиция пустая,
 								 или если это голова и с нее уже сняли фишку, или же на этой позиции чужая фишка, то метим позицию как плохую)))))*/
 								// (player-1) - текущий игрок, ( (player+1) %2 ) - противник!
@@ -113,7 +113,7 @@ void turn()
 	throw_dice();
 	dices.push_back(dice1);
 	dices.push_back(dice2);
-	cout << "Ходит игрок " << player << endl;
+	cout << "Ходит игрок " << player+1 << endl;
 		if (dice1 == dice2) // дубль
 		{
 			cout << "Вам выпал дубль!!!" << endl << endl;
@@ -126,16 +126,16 @@ void turn()
 			{
 				cout << "Введите номер ячейки, откуда переставлять:     ";
 				cin >> pos;
-				while ((val[pos].chip != p[player - 1]) || (head_chip && pos == 12 && player == 2) || (head_chip && pos == 0 && player == 1))
+				while ((val[pos].chip != p[player]) || (head_chip && pos == 12 && player == 1) || (head_chip && pos == 0 && player == 0))
 					// если ход чужой фишкой или попытка снять еще одну с головы
 				{
-					if ((pos == 0 && player == 1) || (pos == 12 && player == 2))
+					if ((pos == 0 && player == 0) || (pos == 12 && player == 1))
 						cout << "С головы фишку снимать больше нельзя. Введите другую позицию" << endl;
 					else
 						cout << "Здесь чужая фишка или пустая ячейка. Введите позицию заново." << endl;
 					cin >> pos;
 				}
-				if ((pos == 0 && player == 1) || (pos == 12 && player == 2)) // сняли фишку с головы, больше снимать нельзя
+				if ((pos == 0 && player == 0) || (pos == 12 && player == 1)) // сняли фишку с головы, больше снимать нельзя
 					head_chip = true;
 				cout << "Количество очков:    ";
 				cin >> points;
@@ -154,7 +154,7 @@ void turn()
 
 				if (flag) // flag - признак верности хода, меняем расположение фишки
 				{
-					if ((player == 1 && ((pos + points)%24) <= 23) || (player == 2 && ((pos + points)%24) <= 11)) //условие того, что фишка не вы из дома
+					if ((player == 0 && ((pos + points)%24) <= 23) || (player == 1 && ((pos + points)%24) <= 11)) //условие того, что фишка не вы из дома
 					{
 						val[(pos + points) % 24].chip = val[pos].chip;
 						val[pos].amount--;
@@ -178,8 +178,9 @@ void turn()
 			}else
 			{
 				cout << "Вы не можете ходить, ход переходит сопернику";
-				Sleep(1000);
-				break;
+				system("PAUSE"); 
+				system("cls");
+				show_field();
 			}
 		}
 	head_chip = false;
